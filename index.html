@@ -1,0 +1,1000 @@
+<title>Tres pasados</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+/* Layout: одна колонка-тетрадь, вкладки сверху; у каждого времени свой цвет, он сквозной во всех режимах */
+:root{
+  --bg:#EEF1F6; --surface:#FFFFFF; --sunk:#F5F7FB; --ink:#18203A; --muted:#5A6482; --line:#D6DCE8;
+  --ind:#2B57D6; --ind-soft:#E3EAFD;
+  --imp:#0B8282; --imp-soft:#DDF2F1;
+  --per:#7A45CC; --per-soft:#EEE5FB;
+  --ok:#23803E; --ok-soft:#E1F3E6; --bad:#C23B3B; --bad-soft:#FBE4E3; --warn:#A66A0B; --warn-soft:#FBF0DA;
+  --display:"Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --body:"Atkinson Hyperlegible", "Helvetica Neue", Arial, system-ui, sans-serif;
+  --r:12px;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#11151F; --surface:#1A2030; --sunk:#151A27; --ink:#E7EBF5; --muted:#9AA4BF; --line:#2C3448;
+  --ind:#7C9DFF; --ind-soft:#1F2A4D; --imp:#4CC7C2; --imp-soft:#123334; --per:#B795F2; --per-soft:#2C2145;
+  --ok:#5BC77A; --ok-soft:#173523; --bad:#F07C7C; --bad-soft:#3D1D20; --warn:#E3B04F; --warn-soft:#3A2E14;
+  color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#11151F; --surface:#1A2030; --sunk:#151A27; --ink:#E7EBF5; --muted:#9AA4BF; --line:#2C3448;
+  --ind:#7C9DFF; --ind-soft:#1F2A4D; --imp:#4CC7C2; --imp-soft:#123334; --per:#B795F2; --per-soft:#2C2145;
+  --ok:#5BC77A; --ok-soft:#173523; --bad:#F07C7C; --bad-soft:#3D1D20; --warn:#E3B04F; --warn-soft:#3A2E14;
+  color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
+.wrap{max-width:760px;margin:0 auto;padding-inline:16px;padding-block:20px 56px;display:flex;flex-direction:column;gap:18px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.15}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--ind);outline-offset:2px}
+
+header{display:flex;flex-direction:column;gap:14px}
+.brand{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand h1{font-size:clamp(30px,6vw,44px);font-weight:800;letter-spacing:-.02em}
+.brand h1 .t1{color:var(--ind)} .brand h1 .t2{color:var(--imp)} .brand h1 .t3{color:var(--per)}
+.brand p{margin:0;color:var(--muted);font-size:14px}
+.today{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;text-align:right}
+.today b{color:var(--ink)}
+
+nav{display:flex;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:4px;overflow-x:auto}
+nav button{flex:1 0 auto;border:0;background:transparent;padding:9px 12px;border-radius:9px;font-size:14px;font-weight:700;color:var(--muted);white-space:nowrap}
+nav button[aria-selected="true"]{background:var(--ink);color:var(--surface)}
+
+.panel{display:flex;flex-direction:column;gap:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px;display:flex;flex-direction:column;gap:16px}
+.lede{color:var(--muted);font-size:14px;margin:0}
+
+.filters{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center}
+.fgroup{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.fgroup .lbl{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-right:2px}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 12px;font-size:13px;font-weight:700;color:var(--muted)}
+.chip[aria-pressed="true"]{border-color:currentColor}
+.chip.ind[aria-pressed="true"]{color:var(--ind);background:var(--ind-soft)}
+.chip.imp[aria-pressed="true"]{color:var(--imp);background:var(--imp-soft)}
+.chip.per[aria-pressed="true"]{color:var(--per);background:var(--per-soft)}
+.chip.neu[aria-pressed="true"]{color:var(--ink);background:var(--sunk)}
+
+.tense{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 10px;border-radius:999px;white-space:nowrap}
+.tense.ind{color:var(--ind);background:var(--ind-soft)} .tense.imp{color:var(--imp);background:var(--imp-soft)} .tense.per{color:var(--per);background:var(--per-soft)}
+
+.verbhead{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.verbhead h2{font-size:clamp(30px,7vw,40px);font-weight:700}
+.verbhead .ru{color:var(--muted);margin-top:2px}
+.box-dots{display:flex;gap:4px;margin-top:8px} .box-dots i{width:18px;height:5px;border-radius:3px;background:var(--line)} .box-dots i.on{background:var(--ok)}
+
+.rows{display:grid;grid-template-columns:minmax(90px,auto) 1fr;gap:8px 12px;align-items:center}
+.rows label{font-size:14px;color:var(--muted)}
+.field{display:flex;flex-direction:column;gap:3px;min-width:0}
+input.ans{width:100%;font:inherit;font-size:18px;padding:9px 12px;border:1.5px solid var(--line);border-radius:9px;background:var(--sunk);color:var(--ink)}
+input.ans:focus{border-color:var(--ink);background:var(--surface);outline:none}
+input.ans.ok{border-color:var(--ok);background:var(--ok-soft)}
+input.ans.bad{border-color:var(--bad);background:var(--bad-soft)}
+input.ans.acc{border-color:var(--warn);background:var(--warn-soft)}
+.fix{font-size:14px} .fix.bad{color:var(--bad)} .fix.acc{color:var(--warn)} .fix b{font-weight:700}
+
+.keys{display:flex;gap:6px;flex-wrap:wrap}
+.keys button{min-width:40px;padding:6px 10px;border:1px solid var(--line);background:var(--sunk);border-radius:8px;font-size:17px}
+.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{border:0;border-radius:10px;padding:11px 18px;font-weight:700;font-size:15px}
+.btn.primary{background:var(--ink);color:var(--surface)}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--muted)}
+.hint{font-size:13px;color:var(--muted)}
+.listen{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.say{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:6px 14px;font-size:14px;font-weight:700}
+.say svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.say:hover{border-color:var(--ink)}
+
+.note{border-left:4px solid var(--warn);background:var(--warn-soft);padding:10px 14px;border-radius:0 9px 9px 0;font-size:15px}
+.verdict{border-radius:10px;padding:12px 14px;font-size:15px;display:flex;flex-direction:column;gap:4px}
+.verdict.ok{background:var(--ok-soft);color:var(--ink)} .verdict.ok strong{color:var(--ok)}
+.verdict.bad{background:var(--bad-soft)} .verdict.bad strong{color:var(--bad)}
+.verdict.acc{background:var(--warn-soft)} .verdict.acc strong{color:var(--warn)}
+.also{font-size:14px;color:var(--muted)}
+
+.sentence{font-family:var(--display);font-size:clamp(22px,5vw,28px);font-weight:500;line-height:1.35}
+.blank{display:inline-block;min-width:4.5em;border-bottom:3px solid var(--muted);text-align:center;color:transparent}
+.blank.filled{color:inherit;border-color:currentColor;font-weight:700}
+.blank.ind{color:var(--ind)} .blank.imp{color:var(--imp)} .blank.per{color:var(--per)}
+mark{background:transparent;color:inherit;text-decoration:underline;text-decoration-thickness:3px;text-underline-offset:4px}
+mark.ind{text-decoration-color:var(--ind)} mark.imp{text-decoration-color:var(--imp)} mark.per{text-decoration-color:var(--per)}
+.prompt{display:inline-flex;gap:8px;align-items:baseline;font-size:15px;color:var(--muted);flex-wrap:wrap}
+.prompt b{color:var(--ink);font-size:17px}
+
+.options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media (max-width:560px){ .options{grid-template-columns:1fr} }
+.opt{border:1.5px solid var(--line);background:var(--sunk);border-radius:11px;padding:14px 10px;font-size:19px;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:4px}
+.opt small{font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;color:transparent}
+.opt:hover:not(:disabled){border-color:var(--ink)}
+.opt:disabled{cursor:default}
+.opt.shown small{color:var(--muted)}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt.right small.ind,.opt.wrong small.ind{color:var(--ind)} .opt.right small.imp,.opt.wrong small.imp{color:var(--imp)} .opt.right small.per,.opt.wrong small.per{color:var(--per)}
+
+/* история */
+.story-title{font-size:26px}
+.story{font-size:19px;line-height:2.3;margin:0}
+.gap{display:inline-flex;align-items:baseline;gap:4px;white-space:nowrap}
+.gap input.ans{width:9.5em;font-size:17px;padding:3px 8px;display:inline-block}
+.gap small{font-size:13px;color:var(--muted)}
+.gap .num{font-size:11px;font-weight:700;color:var(--muted)}
+.explain{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:8px;font-size:15px}
+.explain b.ind{color:var(--ind)} .explain b.imp{color:var(--imp)} .explain b.per{color:var(--per)}
+.explain .wrongword{color:var(--bad);text-decoration:line-through}
+
+/* шпаргалка */
+.sheet{display:grid;gap:12px}
+.rule{border-radius:var(--r);padding:16px 18px;border:1px solid var(--line);background:var(--surface);display:flex;flex-direction:column;gap:8px}
+.rule h3{font-size:22px}
+.rule.ind h3{color:var(--ind)} .rule.imp h3{color:var(--imp)} .rule.per h3{color:var(--per)}
+.rule.ind{border-top:4px solid var(--ind)} .rule.imp{border-top:4px solid var(--imp)} .rule.per{border-top:4px solid var(--per)}
+.rule p{margin:0}
+.rule ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px}
+.markers{display:flex;flex-wrap:wrap;gap:6px}
+.markers span{font-size:14px;padding:2px 9px;border-radius:6px;background:var(--sunk);border:1px solid var(--line)}
+.ex{font-style:italic;color:var(--muted)}
+.c-ind{color:var(--ind);font-weight:700;font-style:normal} .c-imp{color:var(--imp);font-weight:700;font-style:normal} .c-per{color:var(--per);font-weight:700;font-style:normal}
+.pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (max-width:560px){ .pair{grid-template-columns:1fr} }
+.pair > div{background:var(--sunk);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.src{font-size:12px;color:var(--muted)}
+.tbl-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:15px;font-variant-numeric:tabular-nums}
+th,td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+th{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700}
+td b{font-weight:700}
+.how ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
+
+/* прогресс */
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.stat{background:var(--sunk);border-radius:10px;padding:12px}
+.stat .n{font-family:var(--display);font-size:28px;font-weight:700;font-variant-numeric:tabular-nums}
+.stat .l{font-size:13px;color:var(--muted)}
+.grid td.c{width:33%}
+.cell{height:22px;border-radius:5px;background:var(--sunk);border:1px solid var(--line);position:relative;overflow:hidden}
+.cell i{position:absolute;inset:0 auto 0 0;display:block}
+.cell.ind i{background:var(--ind)} .cell.imp i{background:var(--imp)} .cell.per i{background:var(--per)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.weak{display:flex;flex-wrap:wrap;gap:6px}
+.weak span{font-size:14px;padding:3px 10px;border-radius:999px;background:var(--bad-soft);color:var(--bad);font-weight:700}
+.danger{color:var(--bad);border-color:var(--bad)}
+@media (max-width:480px){ .card{padding:16px} .stat .n{font-size:22px} .story{font-size:17px} }
+@media (prefers-reduced-motion:no-preference){ .opt,.btn,input.ans{transition:background .15s,border-color .15s} }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <div>
+        <h1><span class="t1">Tres</span> <span class="t2">pa</span><span class="t3">sados</span></h1>
+        <p>Indefinido · Imperfecto · Perfecto — по Vitamina B1, unidades 1–2</p>
+      </div>
+      <div class="today" id="today"></div>
+    </div>
+    <nav role="tablist" aria-label="Режимы">
+      <button role="tab" data-tab="conj" aria-selected="true">Спряжение</button>
+      <button role="tab" data-tab="choose" aria-selected="false">Выбери время</button>
+      <button role="tab" data-tab="write" aria-selected="false">Вставь форму</button>
+      <button role="tab" data-tab="story" aria-selected="false">История</button>
+      <button role="tab" data-tab="sheet" aria-selected="false">Шпаргалка</button>
+      <button role="tab" data-tab="prog" aria-selected="false">Прогресс</button>
+    </nav>
+  </header>
+
+  <!-- 1. Спряжение -->
+  <section class="panel" id="tab-conj">
+    <p class="lede">Заполни все шесть форм по памяти. Ошибочные формы вернутся через минуту, выученные — через дни.</p>
+    <div class="filters">
+      <div class="fgroup" id="f-tense"><span class="lbl">Время</span>
+        <button class="chip ind" data-t="ind" aria-pressed="false">Indefinido</button>
+        <button class="chip imp" data-t="imp" aria-pressed="false">Imperfecto</button>
+        <button class="chip per" data-t="per" aria-pressed="false">Perfecto</button>
+        <button class="chip neu" data-t="all" aria-pressed="true">Все три</button>
+      </div>
+      <div class="fgroup" id="f-group"><span class="lbl">Глаголы</span>
+        <button class="chip neu" data-g="irr" aria-pressed="false">Неправильные</button>
+        <button class="chip neu" data-g="spell" aria-pressed="false">С особенностями</button>
+        <button class="chip neu" data-g="reg" aria-pressed="false">Правильные</button>
+        <button class="chip neu" data-g="all" aria-pressed="true">Все</button>
+      </div>
+    </div>
+    <div class="card" id="conj-card"></div>
+  </section>
+
+  <!-- 2. Выбери -->
+  <section class="panel" id="tab-choose" hidden>
+    <p class="lede">Какое время нужно? Спроси себя: событие связано с «сейчас»? это фон или событие? Иногда верны два ответа, как в книге. Клавиши 1, 2, 3 тоже работают.</p>
+    <div class="card" id="choose-card"></div>
+  </section>
+
+  <!-- 3. Вставь -->
+  <section class="panel" id="tab-write" hidden>
+    <p class="lede">Сама выбери время и напиши форму. Если возможны два времени, засчитывается любое.</p>
+    <div class="card" id="write-card"></div>
+  </section>
+
+  <!-- 4. История -->
+  <section class="panel" id="tab-story" hidden>
+    <p class="lede">Как в «Narrar historias»: imperfecto рисует фон, indefinido двигает сюжет, perfecto связывает с «сейчас». Заполни все пропуски, потом проверь. Прочитай историю вслух целиком.</p>
+    <div class="card" id="story-card"></div>
+  </section>
+
+  <!-- 5. Шпаргалка -->
+  <section class="panel" id="tab-sheet" hidden>
+    <div class="card how">
+      <h3>Как заниматься, чтобы запомнилось</h3>
+      <ol>
+        <li><b>15–20 минут каждый день</b> лучше, чем час раз в неделю. Тренажёр сам возвращает то, что ты начинаешь забывать.</li>
+        <li><b>Сначала «Спряжение»</b>: начни с фильтра «Неправильные» и одного времени. Когда формы пойдут легко, включи все три.</li>
+        <li><b>Потом «Выбери время» и «Вставь форму»</b>: учишься выбирать время в одной фразе.</li>
+        <li><b>Затем «История»</b>: главный навык B1 — рассказать, что случилось. Читай историю вслух, потом перескажи своими словами.</li>
+        <li><b>Ошибки не страшны</b>: после ошибки задание вернётся через минуту. Это и есть заучивание.</li>
+      </ol>
+    </div>
+    <div class="sheet">
+      <div class="card">
+        <h3>Perfecto или indefinido: решает говорящий</h3>
+        <p style="margin:0">Оба времени рассказывают о законченном действии. Разница в том, <b>связывает ли говорящий его с настоящим моментом</b>. Поэтому иногда правильны оба.</p>
+        <div class="pair">
+          <div><span class="tense per">perfecto</span><span class="ex">Hoy <span class="c-per">he visto</span> a Marta, por eso estoy tan contenta.</span><span class="src">Встреча связана с тем, что я чувствую сейчас.</span></div>
+          <div><span class="tense ind">indefinido</span><span class="ex">Por cierto, hoy <span class="c-ind">vi</span> a Marta.</span><span class="src">Просто факт из прошлого, без связи с «сейчас».</span></div>
+          <div><span class="tense per">perfecto</span><span class="ex">Nunca <span class="c-per">he ido</span> a Japón.</span><span class="src">За всю жизнь, до сегодняшнего дня.</span></div>
+          <div><span class="tense ind">indefinido</span><span class="ex">Nunca <span class="c-ind">fui</span> a Japón.</span><span class="src">В закрытом периоде, например, когда жила в Азии.</span></div>
+        </div>
+        <p class="lede">С <i>hace un rato, hace unos minutos, hace un momento</i> возможны оба времени. В Латинской Америке и на Канарах, в Галисии, Астурии обычно говорят indefinido.</p>
+      </div>
+      <div class="rule per">
+        <h3>Pretérito perfecto</h3>
+        <p><b>Связь с сейчас.</b> Период ещё идёт, опыт за жизнь, результат виден сейчас.</p>
+        <div class="markers"><span>hoy</span><span>esta mañana</span><span>esta semana</span><span>este año</span><span>ya</span><span>todavía no</span><span>nunca</span><span>alguna vez</span><span>últimamente</span><span>hace un rato</span></div>
+        <p class="ex">¿Ya has comido? · Todavía no he visto la serie.</p>
+      </div>
+      <div class="rule ind">
+        <h3>Pretérito indefinido</h3>
+        <p><b>Что случилось.</b> Законченное событие, показанное целиком, без связи с настоящим. Двигает сюжет рассказа вперёд.</p>
+        <div class="markers"><span>ayer</span><span>anoche</span><span>el año pasado</span><span>la semana pasada</span><span>el lunes</span><span>en 2019</span><span>hace dos años</span><span>el otro día</span><span>de repente</span><span>durante cinco años</span><span>toda la semana</span></div>
+        <p class="ex">Si dices cuánto duró, es indefinido: La última vez que fui a París <span class="c-ind">llovió</span> toda la semana.</p>
+      </div>
+      <div class="rule imp">
+        <h3>Pretérito imperfecto</h3>
+        <p><b>«Настоящее в прошлом».</b> Всё, для чего сейчас ты сказала бы presente, о прошлом говоришь в imperfecto.</p>
+        <ul>
+          <li>Привычки: <span class="ex">Ahora usamos cinturón → Antes no <span class="c-imp">usábamos</span> cinturón.</span></li>
+          <li>Описание людей, мест, вещей: <span class="ex">La casa <span class="c-imp">era</span> grande.</span></li>
+          <li>Фон и ситуация в рассказе: <span class="ex"><span class="c-imp">Hacía</span> calor y <span class="c-imp">estábamos</span> en la playa.</span></li>
+          <li><b>soler + инфинитив</b> = «обычно»: <span class="ex">De pequeña <span class="c-imp">solía</span> ir al campo los domingos.</span></li>
+          <li><b>hay → había</b> (описание) и <b>hubo</b> (событие): <span class="ex">Antes no <span class="c-imp">había</span> tantos coches. · Ayer <span class="c-ind">hubo</span> un accidente.</span></li>
+        </ul>
+        <div class="markers"><span>antes</span><span>siempre</span><span>normalmente</span><span>a veces</span><span>dos veces por semana</span><span>de pequeño/a</span><span>en aquella época</span><span>mientras</span></div>
+      </div>
+      <div class="card">
+        <h3>Ya no и todavía</h3>
+        <p style="margin:0">Сравниваем прошлое с настоящим: <i>ya no</i> — привычки больше нет, <i>todavía</i> — она осталась.</p>
+        <p class="ex" style="margin:0">Antes <span class="c-imp">fumaba</span>, pero ya no (fumo). · Antes <span class="c-imp">era</span> muy tímida y todavía lo soy.</p>
+      </div>
+      <div class="card">
+        <h3>Рассказываем историю</h3>
+        <div class="pair">
+          <div><span class="tense imp">imperfecto</span><span>Сцена: кто, где, какая погода, что происходило. Мы «внутри» истории.</span><span class="ex">Una mujer de 90 años vivía sola. Estaba comiendo tranquilamente…</span></div>
+          <div><span class="tense ind">indefinido</span><span>События по порядку: что произошло, сюжет движется. Мы смотрим «снаружи».</span><span class="ex">…y de repente oyó un ruido, llamó a la policía y la policía llegó.</span></div>
+        </div>
+        <p class="lede">Оба времени возможны и с одним глаголом: <i>Recuerdo que <span class="c-ind">hizo</span> calor</i> (весь день целиком) — <i>Recuerdo que <span class="c-imp">hacía</span> calor</i> (я внутри того дня).</p>
+        <p style="margin:0"><b>Начать:</b> <i>¿Sabes lo que me pasó…? · ¡No te imaginas lo que me ocurrió! · Pues resulta que un día…</i><br>
+        <b>Поворот:</b> <i>De repente… · De pronto…</i><br>
+        <b>Закончить:</b> <i>Total, que… · Bueno, el caso es que al final…</i><br>
+        <b>Слушатель:</b> <i>¿Y qué pasó? · ¡No me digas! · ¿En serio? · ¡Madre mía!</i></p>
+      </div>
+
+      <div class="card">
+        <h3>Окончания правильных глаголов</h3>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th></th><th>indef. -ar</th><th>indef. -er/-ir</th><th>imperf. -ar</th><th>imperf. -er/-ir</th><th>perfecto</th></tr></thead>
+          <tbody>
+            <tr><td>yo</td><td>trabaj<b>é</b></td><td>com<b>í</b></td><td>estudi<b>aba</b></td><td>ten<b>ía</b></td><td><b>he</b> comprado</td></tr>
+            <tr><td>tú</td><td>trabaj<b>aste</b></td><td>com<b>iste</b></td><td>estudi<b>abas</b></td><td>ten<b>ías</b></td><td><b>has</b> tenido</td></tr>
+            <tr><td>él/ella</td><td>trabaj<b>ó</b></td><td>com<b>ió</b></td><td>estudi<b>aba</b></td><td>ten<b>ía</b></td><td><b>ha</b> ido</td></tr>
+            <tr><td>nosotros</td><td>trabaj<b>amos</b></td><td>com<b>imos</b></td><td>estudi<b>ábamos</b></td><td>ten<b>íamos</b></td><td><b>hemos</b> salido</td></tr>
+            <tr><td>vosotros</td><td>trabaj<b>asteis</b></td><td>com<b>isteis</b></td><td>estudi<b>abais</b></td><td>ten<b>íais</b></td><td><b>habéis</b> dado</td></tr>
+            <tr><td>ellos</td><td>trabaj<b>aron</b></td><td>com<b>ieron</b></td><td>estudi<b>aban</b></td><td>ten<b>ían</b></td><td><b>han</b> podido</td></tr>
+          </tbody>
+        </table></div>
+        <p class="lede">В imperfecto у -er/-ir ударение во всех формах, у -ar — только в nosotros: estudi<b>á</b>bamos.</p>
+      </div>
+
+      <div class="card">
+        <h3>Неправильный indefinido: сильные основы</h3>
+        <p class="lede">Окончания у всех одни: <b>-e, -iste, -o, -imos, -isteis, -ieron</b>, без ударений в yo и él. После j — <b>-eron</b>.</p>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>глагол</th><th>основа</th><th>yo</th><th>él</th><th>ellos</th></tr></thead>
+          <tbody>
+            <tr><td>estar</td><td>estuv-</td><td>estuve</td><td>estuvo</td><td>estuvieron</td></tr>
+            <tr><td>tener</td><td>tuv-</td><td>tuve</td><td>tuvo</td><td>tuvieron</td></tr>
+            <tr><td>andar</td><td>anduv-</td><td>anduve</td><td>anduvo</td><td>anduvieron</td></tr>
+            <tr><td>haber</td><td>hub-</td><td>—</td><td>hubo</td><td>—</td></tr>
+            <tr><td>poner</td><td>pus-</td><td>puse</td><td>puso</td><td>pusieron</td></tr>
+            <tr><td>poder</td><td>pud-</td><td>pude</td><td>pudo</td><td>pudieron</td></tr>
+            <tr><td>querer</td><td>quis-</td><td>quise</td><td>quiso</td><td>quisieron</td></tr>
+            <tr><td>venir</td><td>vin-</td><td>vine</td><td>vino</td><td>vinieron</td></tr>
+            <tr><td>hacer</td><td>hic- / hiz-</td><td>hice</td><td><b>hizo</b></td><td>hicieron</td></tr>
+            <tr><td>saber</td><td>sup-</td><td>supe</td><td>supo</td><td>supieron</td></tr>
+            <tr><td>caber</td><td>cup-</td><td>cupe</td><td>cupo</td><td>cupieron</td></tr>
+            <tr><td>decir</td><td>dij-</td><td>dije</td><td>dijo</td><td><b>dijeron</b></td></tr>
+            <tr><td>traer</td><td>traj-</td><td>traje</td><td>trajo</td><td><b>trajeron</b></td></tr>
+            <tr><td>conducir, traducir</td><td>-duj-</td><td>conduje</td><td>tradujo</td><td><b>tradujeron</b></td></tr>
+            <tr><td>ser / ir</td><td>—</td><td>fui</td><td>fue</td><td>fueron</td></tr>
+            <tr><td>dar</td><td>—</td><td>di</td><td>dio</td><td>dieron</td></tr>
+            <tr><td>ver</td><td>—</td><td>vi</td><td>vio</td><td>vieron</td></tr>
+          </tbody>
+        </table></div>
+        <p class="lede"><b>-ir со сменой гласной</b> только в él и ellos: pedir → pidió, dormir → durmió, sentir → sintió, morir → murió, seguir → siguió.<br>
+        <b>Основа на гласную</b>: i → y в él и ellos: leyó, oyó, creyó, cayó, construyó.<br>
+        <b>Орфография в yo</b>: llegué, busqué, empecé.</p>
+      </div>
+
+      <div class="card">
+        <h3>Imperfecto: всего три исключения</h3>
+        <p style="margin:0"><b>ser</b>: era, eras, era, éramos, erais, eran · <b>ir</b>: iba, ibas, iba, íbamos, ibais, iban · <b>ver</b>: veía, veías, veía…</p>
+      </div>
+
+      <div class="card">
+        <h3>Неправильные participios</h3>
+        <div class="markers"><span>ver → visto</span><span>hacer → hecho</span><span>escribir → escrito</span><span>decir → dicho</span><span>volver → vuelto</span><span>abrir → abierto</span><span>poner → puesto</span><span>descubrir → descubierto</span><span>morir → muerto</span><span>romper → roto</span></div>
+        <p class="lede">Производные глаголы тоже: devolver → devuelto, deshacer → deshecho, posponer → pospuesto, reabrir → reabierto. С ударением: leído, oído, creído, caído, traído.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. Прогресс -->
+  <section class="panel" id="tab-prog" hidden>
+    <div class="card" id="prog-card"></div>
+  </section>
+</div>
+
+<script>
+(function(){
+const P = ['yo','tú','él / ella / usted','nosotros/-as','vosotros/-as','ellos / ellas / ustedes'];
+const PS = ['yo','tú','él','nosotros','vosotros','ellos'];
+const HABER = ['he','has','ha','hemos','habéis','han'];
+const REF = ['me','te','se','nos','os','se'];
+const TN = {ind:'Indefinido', imp:'Imperfecto', per:'Perfecto'};
+
+// g: irr — неправильные, spell — орфография / неправильный participio, reg — правильные
+// only — в каких временах тренировать; noPar — только в предложениях и историях
+const VERBS = [
+ {k:'ser', ru:'быть', g:'irr', ind:['fui','fuiste','fue','fuimos','fuisteis','fueron'], imp:['era','eras','era','éramos','erais','eran'], pp:'sido',
+   n:{ind:'Indefinido у ser и ir одинаковый: fui, fuiste, fue… Отличаешь по смыслу.', imp:'era — одно из трёх исключений imperfecto (ser, ir, ver).'}},
+ {k:'ir', ru:'идти, ехать', g:'irr', ind:['fui','fuiste','fue','fuimos','fuisteis','fueron'], imp:['iba','ibas','iba','íbamos','ibais','iban'], pp:'ido',
+   n:{ind:'Как у ser: fui, fuiste, fue…', imp:'iba — одно из трёх исключений imperfecto. Ударение только в íbamos.'}},
+ {k:'estar', ru:'находиться, быть', g:'irr', strong:'estuv', n:{ind:'Основа estuv- и окончания без ударения: estuve, estuvo.'}},
+ {k:'tener', ru:'иметь', g:'irr', strong:'tuv', n:{ind:'Основа tuv-: tuve, tuviste, tuvo…'}},
+ {k:'andar', ru:'ходить пешком', g:'irr', strong:'anduv', n:{ind:'Основа anduv-: anduve, anduvo. Частая ошибка — «andé».'}},
+ {k:'hacer', ru:'делать', g:'irr', strong:'hic', pp:'hecho', n:{ind:'hice, hiciste, но él — hizo (с z, чтобы сохранить звук).', per:'Participio неправильный: hecho.'}},
+ {k:'poder', ru:'мочь', g:'irr', strong:'pud', n:{ind:'Основа pud-: pude, pudo.'}},
+ {k:'poner', ru:'класть, ставить', g:'irr', strong:'pus', pp:'puesto', n:{ind:'Основа pus-: puse, puso.', per:'Participio: puesto.'}},
+ {k:'querer', ru:'хотеть', g:'irr', strong:'quis', n:{ind:'Основа quis-: quise, quiso. No quiso = «отказался».'}},
+ {k:'decir', ru:'сказать', g:'irr', strong:'dij', pp:'dicho', n:{ind:'Основа dij-, в ellos без i: dijeron.', per:'Participio: dicho.'}},
+ {k:'venir', ru:'приходить', g:'irr', strong:'vin', n:{ind:'Основа vin-: vine, vino.'}},
+ {k:'saber', ru:'знать; узнать', g:'irr', strong:'sup', n:{ind:'Основа sup-. В indefinido supe = «узнала».'}},
+ {k:'caber', ru:'помещаться', g:'irr', strong:'cup', n:{ind:'Основа cup-: cupe, cupo. No cupimos = «мы не поместились».'}},
+ {k:'dar', ru:'давать', g:'irr', ind:['di','diste','dio','dimos','disteis','dieron'], n:{ind:'Спрягается как -er/-ir глагол, di и dio без ударения.'}},
+ {k:'ver', ru:'видеть, смотреть', g:'irr', ind:['vi','viste','vio','vimos','visteis','vieron'], imp:['veía','veías','veía','veíamos','veíais','veían'], pp:'visto',
+   n:{ind:'vi, vio — без ударения.', imp:'veía — одно из трёх исключений imperfecto.', per:'Participio: visto.'}},
+ {k:'traer', ru:'приносить', g:'irr', strong:'traj', pp:'traído', n:{ind:'Основа traj-, в ellos: trajeron.', per:'Participio с ударением: traído.'}},
+ {k:'conducir', ru:'водить машину', g:'irr', strong:'conduj', n:{ind:'-ducir → -duj-, в ellos: condujeron.'}},
+ {k:'traducir', ru:'переводить', g:'irr', strong:'traduj', n:{ind:'Как conducir: traduje, tradujo, tradujeron.'}},
+ {k:'pedir', ru:'просить; заказывать', g:'irr', s3:'pid', n:{ind:'e → i только в él и ellos: pidió, pidieron.'}},
+ {k:'seguir', ru:'продолжать; следовать', g:'irr', s3:'sigu', n:{ind:'e → i только в él и ellos: siguió, siguieron.'}},
+ {k:'dormir', ru:'спать', g:'irr', s3:'durm', n:{ind:'o → u только в él и ellos: durmió, durmieron.'}},
+ {k:'sentir', ru:'чувствовать', g:'irr', s3:'sint', n:{ind:'e → i только в él и ellos: sintió, sintieron.'}},
+ {k:'morir', ru:'умирать', g:'irr', s3:'mur', pp:'muerto', n:{ind:'o → u: murió, murieron.', per:'Participio: muerto.'}},
+ {k:'leer', ru:'читать', g:'irr', ind:['leí','leíste','leyó','leímos','leísteis','leyeron'], pp:'leído', n:{ind:'i → y: leyó, leyeron. Остальные с ударением на í.', per:'Participio: leído.'}},
+ {k:'oír', ru:'слышать', g:'irr', ind:['oí','oíste','oyó','oímos','oísteis','oyeron'], pp:'oído', n:{ind:'i → y: oyó, oyeron.', per:'Participio: oído.'}},
+ {k:'creer', ru:'верить, думать', g:'irr', ind:['creí','creíste','creyó','creímos','creísteis','creyeron'], pp:'creído', n:{ind:'i → y: creyó, creyeron.', per:'Participio: creído.'}},
+ {k:'caerse', ru:'упасть', g:'irr', ind:['caí','caíste','cayó','caímos','caísteis','cayeron'], pp:'caído', n:{ind:'i → y: se cayó, se cayeron. Возвратный: me caí.', per:'me he caído.'}},
+ {k:'darse cuenta', ru:'заметить, осознать', g:'irr', refl:true, base:'dar', tail:' cuenta', ind:['di','diste','dio','dimos','disteis','dieron'],
+   n:{ind:'Как dar + местоимение: me di cuenta, se dio cuenta.', imp:'me daba cuenta', per:'me he dado cuenta'}},
+ {k:'soler', ru:'обычно (делать)', g:'irr', only:['imp'], n:{imp:'soler + инфинитив = «обычно». О прошлом почти всегда в imperfecto: solía ir, solíamos comer.'}},
+ {k:'llegar', ru:'приходить, прибывать', g:'spell', n:{ind:'yo: llegué — u сохраняет звук [g].'}},
+ {k:'pagar', ru:'платить', g:'spell', n:{ind:'yo: pagué.'}},
+ {k:'jugar', ru:'играть', g:'spell', n:{ind:'yo: jugué.'}},
+ {k:'buscar', ru:'искать', g:'spell', n:{ind:'yo: busqué — c → qu.'}},
+ {k:'empezar', ru:'начинать', g:'spell', n:{ind:'yo: empecé — z → c.'}},
+ {k:'escribir', ru:'писать', g:'spell', pp:'escrito', n:{per:'Participio: escrito.'}},
+ {k:'abrir', ru:'открывать', g:'spell', pp:'abierto', n:{per:'Participio: abierto.'}},
+ {k:'descubrir', ru:'открыть, обнаружить', g:'spell', pp:'descubierto', n:{per:'Participio: descubierto.'}},
+ {k:'volver', ru:'возвращаться', g:'spell', pp:'vuelto', n:{per:'Participio: vuelto.'}},
+ {k:'devolver', ru:'вернуть (что-то)', g:'spell', pp:'devuelto', n:{per:'Как volver: devuelto.'}},
+ {k:'romper', ru:'ломать, разбивать', g:'spell', pp:'roto', n:{per:'Participio: roto.'}},
+ {k:'hablar', ru:'говорить', g:'reg'},
+ {k:'trabajar', ru:'работать', g:'reg'},
+ {k:'estudiar', ru:'учиться', g:'reg'},
+ {k:'viajar', ru:'путешествовать', g:'reg'},
+ {k:'comprar', ru:'покупать', g:'reg'},
+ {k:'llamar', ru:'звонить, звать', g:'reg'},
+ {k:'llevar', ru:'носить; отвозить', g:'reg'},
+ {k:'olvidar', ru:'забывать', g:'reg'},
+ {k:'comer', ru:'есть', g:'reg'},
+ {k:'beber', ru:'пить', g:'reg'},
+ {k:'aprender', ru:'учиться, научиться', g:'reg'},
+ {k:'coger', ru:'брать; садиться (на автобус)', g:'reg'},
+ {k:'vivir', ru:'жить', g:'reg'},
+ {k:'salir', ru:'выходить', g:'reg', n:{ind:'В прошедших временах salir правильный: salí, salió.'}},
+ {k:'conocer', ru:'знать; познакомиться', g:'reg', n:{ind:'conocí = «я познакомилась».'}},
+ {k:'nacer', ru:'родиться', g:'reg'},
+ {k:'levantarse', ru:'вставать', g:'reg', n:{ind:'Возвратный: me levanté, te levantaste…', imp:'Местоимение перед глаголом: me levantaba.', per:'Местоимение перед haber: me he levantado.'}},
+ {k:'acostarse', ru:'ложиться спать', g:'reg', n:{ind:'В прошедшем без смены корня: me acosté.', per:'me he acostado.'}},
+ // только для предложений и историй
+ {k:'hay', inf:'haber (hay)', ru:'есть, имеется', g:'irr', noPar:true, fixed:{ind:'hubo', imp:'había', per:'ha habido'}},
+ {k:'llover', ru:'идти (о дожде)', g:'reg', noPar:true},
+ {k:'romperse', ru:'сломать (себе)', g:'reg', noPar:true, base:'romper', pp:'roto'},
+ {k:'mirar', ru:'смотреть', g:'reg', noPar:true},
+ {k:'usar', ru:'использовать', g:'reg', noPar:true},
+ {k:'fumar', ru:'курить', g:'reg', noPar:true},
+ {k:'saludar', ru:'здороваться', g:'reg', noPar:true},
+ {k:'preguntar', ru:'спрашивать', g:'reg', noPar:true},
+ {k:'decidir', ru:'решать', g:'reg', noPar:true},
+ {k:'subir', ru:'подниматься, залезать', g:'reg', noPar:true},
+ {k:'desayunar', ru:'завтракать', g:'reg', noPar:true},
+ {k:'cenar', ru:'ужинать', g:'reg', noPar:true},
+];
+const VMAP = Object.fromEntries(VERBS.map(v=>[v.k,v]));
+
+function conj(v, t){
+  if(v.fixed) return Array(6).fill(v.fixed[t]);
+  const refl = v.refl ?? v.k.endsWith('se');
+  const base = v.base || (refl ? v.k.slice(0,-2) : v.k);
+  const type = base.slice(-2), stem = base.slice(0,-2);
+  let f;
+  if(t==='ind'){
+    if(v.ind) f = v.ind;
+    else if(v.strong){ const s=v.strong, j=s.endsWith('j');
+      f=[s+'e',s+'iste',v.k==='hacer'?'hizo':s+'o',s+'imos',s+'isteis',s+(j?'eron':'ieron')]; }
+    else if(type==='ar'){ let yo=stem+'é';
+      if(stem.endsWith('c')) yo=stem.slice(0,-1)+'qué'; else if(stem.endsWith('g')) yo=stem+'ué'; else if(stem.endsWith('z')) yo=stem.slice(0,-1)+'cé';
+      f=[yo,stem+'aste',stem+'ó',stem+'amos',stem+'asteis',stem+'aron']; }
+    else { const s3=v.s3||stem; f=[stem+'í',stem+'iste',s3+'ió',stem+'imos',stem+'isteis',s3+'ieron']; }
+  } else if(t==='imp'){
+    if(v.imp) f=v.imp;
+    else if(type==='ar') f=['aba','abas','aba','ábamos','abais','aban'].map(e=>stem+e);
+    else f=['ía','ías','ía','íamos','íais','ían'].map(e=>stem+e);
+  } else {
+    const pp = v.pp || stem+(type==='ar'?'ado':'ido');
+    f = HABER.map(h=>h+' '+pp);
+  }
+  let out = refl ? f.map((x,i)=>REF[i]+' '+x) : f.slice();
+  if(v.tail) out = out.map(x=>x+v.tail);
+  return out;
+}
+const tensesFor = v => v.only || ['ind','imp','per'];
+
+// предложения: s — текст, v — глагол, p — лицо (0..5), t — время, alt — тоже верные времена, m — маркер, why — объяснение
+const PERSP = ' По книге можно и indefinido, если не связывать событие с «сейчас» (Hoy vi a Marta).';
+const SENT = [
+ {s:'Ayer ___ al cine con mis amigos.', v:'ir',p:0,t:'ind',m:'Ayer',why:'«Ayer» — закрытый период, событие без связи с «сейчас» → indefinido.'},
+ {s:'El año pasado mis padres ___ a México.', v:'viajar',p:5,t:'ind',m:'El año pasado',why:'Год закончился → indefinido.'},
+ {s:'En 2015 ___ seis meses en Barcelona.', v:'vivir',p:0,t:'ind',m:'seis meses',why:'Указан срок («seis meses») — действие показано целиком → indefinido, даже если оно длилось долго.'},
+ {s:'La semana pasada Ana ___ un examen muy difícil.', v:'tener',p:2,t:'ind',m:'La semana pasada',why:'Прошлая неделя + одно событие → indefinido. tener → tuvo.'},
+ {s:'Hace dos años ___ a estudiar español.', v:'empezar',p:3,t:'ind',m:'Hace dos años',why:'«Hace + срок» = «… назад», точка в прошлом → indefinido.'},
+ {s:'¿Qué ___ el fin de semana pasado?', v:'hacer',p:1,t:'ind',m:'el fin de semana pasado',why:'Выходные закончились → indefinido. hacer: hice, hiciste.'},
+ {s:'Anoche el niño ___ diez horas seguidas.', v:'dormir',p:2,t:'ind',m:'Anoche',why:'«Anoche» → indefinido. dormir в él: durmió.'},
+ {s:'El sábado Luis me ___ la verdad.', v:'decir',p:2,t:'ind',m:'El sábado',why:'Конкретный прошедший день, одно действие → indefinido. decir → dijo.'},
+ {s:'Mi abuela ___ en 1950.', v:'nacer',p:2,t:'ind',m:'en 1950',why:'Факт с датой → indefinido.'},
+ {s:'De repente alguien ___ a la puerta.', v:'llamar',p:2,t:'ind',m:'De repente',why:'«De repente» — внезапное событие, сюжет движется → indefinido.'},
+ {s:'El lunes pasado ___ tarde al trabajo.', v:'llegar',p:0,t:'ind',m:'El lunes pasado',why:'Прошлый понедельник → indefinido. llegar → llegué.'},
+ {s:'¿Cuándo ___ de vacaciones? —El domingo pasado.', v:'volver',p:4,t:'ind',m:'El domingo pasado',why:'Вопрос о точном моменте в прошлом → indefinido.'},
+ {s:'Anoche en la fiesta ___ muchísima paella.', v:'comer',p:5,t:'ind',m:'Anoche',why:'«Anoche» → indefinido.'},
+ {s:'Ayer ___ la cuenta en el restaurante.', v:'pagar',p:0,t:'ind',m:'Ayer',why:'«Ayer» → indefinido. pagar → pagué.'},
+ {s:'El verano pasado ___ dos semanas en Valencia.', v:'estar',p:3,t:'ind',m:'dos semanas',why:'Закрытый период с чётким сроком → indefinido. estar → estuvimos.'},
+ {s:'Ayer los niños no ___ ir al parque porque llovía.', v:'poder',p:5,t:'ind',m:'Ayer',why:'Результат вчера («не смогли») → indefinido. А llovía — фон, imperfecto.'},
+ {s:'Cuando Marta ___ la noticia, me llamó enseguida.', v:'saber',p:2,t:'ind',m:'me llamó enseguida',why:'Цепочка событий: узнала → позвонила. supo = «узнала».'},
+ {s:'El martes ___ a mi profesora en el mercado.', v:'ver',p:0,t:'ind',m:'El martes',why:'Одно событие в конкретный день → indefinido. ver → vi.'},
+ {s:'Anoche Pedro ___ una pizza para todos.', v:'pedir',p:2,t:'ind',m:'Anoche',why:'«Anoche» → indefinido. pedir в él: pidió.'},
+ {s:'En 2018 ___ a mi marido en un viaje.', v:'conocer',p:0,t:'ind',m:'En 2018',why:'Дата + событие → indefinido. conocí = «познакомилась».'},
+ {s:'Cuando ___ a casa, mi marido estaba cocinando.', v:'llegar',p:0,t:'ind',m:'estaba cocinando',why:'Событие (пришла) на фоне процесса (estaba cocinando) → indefinido.'},
+ {s:'Mientras esperaba el autobús, ___ a un amigo de la universidad.', v:'ver',p:0,t:'ind',m:'Mientras esperaba',why:'Фон — esperaba (imperfecto), событие на этом фоне — vi (indefinido).'},
+ {s:'Ayer Carlos ___ a casa muy tarde.', v:'volver',p:2,t:'ind',m:'Ayer',why:'«Ayer» → indefinido.'},
+ {s:'El otro día ___ un libro muy interesante.', v:'leer',p:0,t:'ind',m:'El otro día',why:'«El otro día» (на днях) → indefinido. leer → leí.'},
+ {s:'Ayer mi hermana me ___ un regalo de Italia.', v:'traer',p:2,t:'ind',m:'Ayer',why:'«Ayer» → indefinido. traer → trajo.'},
+ {s:'El año pasado ___ de Madrid a Lisboa sin parar.', v:'conducir',p:3,t:'ind',m:'El año pasado',why:'Закрытый год → indefinido. conducir → condujimos.'},
+ {s:'¿Por qué no ___ ayer a la fiesta?', v:'venir',p:1,t:'ind',m:'ayer',why:'«Ayer» → indefinido. venir → viniste.'},
+ {s:'Mi abuelo ___ en 2001.', v:'morir',p:2,t:'ind',m:'en 2001',why:'Дата → indefinido. morir в él: murió.'},
+ {s:'Anoche mi hijo ___ un dolor muy fuerte en la tripa.', v:'sentir',p:2,t:'ind',m:'Anoche',why:'«Anoche» → indefinido. sentir в él: sintió.'},
+ {s:'Ayer ___ unos zapatos en las rebajas.', v:'comprar',p:0,t:'ind',m:'Ayer',why:'«Ayer» → indefinido.'},
+ {s:'Anoche ___ muy tarde, a las dos.', v:'acostarse',p:0,t:'ind',m:'Anoche',why:'«Anoche» → indefinido. Возвратный: me acosté.'},
+ {s:'¿A qué hora ___ ayer del trabajo?', v:'salir',p:1,t:'ind',m:'ayer',why:'«Ayer» → indefinido. salir в прошедшем правильный: saliste.'},
+ {s:'Ayer ___ las llaves por toda la casa.', v:'buscar',p:0,t:'ind',m:'Ayer',why:'«Ayer» → indefinido. buscar → busqué.'},
+ {s:'El domingo ___ al tenis con mi hermano.', v:'jugar',p:0,t:'ind',m:'El domingo',why:'Конкретный прошедший день → indefinido. jugar → jugué.'},
+ {s:'Ayer ___ la lavadora dos veces.', v:'poner',p:0,t:'ind',m:'Ayer',why:'«Ayer» → indefinido. poner → puse.'},
+ {s:'Ayer Juan no ___ venir a la fiesta.', v:'querer',p:2,t:'ind',m:'Ayer',why:'«Ayer» → indefinido. No quiso = «не захотел, отказался».'},
+ {s:'Mis padres me ___ este reloj cuando cumplí 18 años.', v:'dar',p:5,t:'ind',m:'cuando cumplí 18 años',why:'Событие в конкретный момент → indefinido. dar → dieron.'},
+ {s:'Ayer ___ con mi jefa sobre las vacaciones.', v:'hablar',p:0,t:'ind',m:'Ayer',why:'«Ayer» → indefinido.'},
+ {s:'La boda de mi prima ___ el sábado pasado.', v:'ser',p:2,t:'ind',m:'el sábado pasado',why:'Событие с конкретной датой → indefinido. ser → fue.'},
+ {s:'Cuando vivía en Asia, nunca ___ a Japón.', v:'ir',p:0,t:'ind',m:'Cuando vivía en Asia',why:'«Nunca» относится к закрытому периоду (когда жила в Азии), а не ко всей жизни → indefinido: nunca fui. Пример из книги.'},
+ {s:'La última vez que fui a París, ___ toda la semana.', v:'llover',p:2,t:'ind',m:'toda la semana',why:'Указано, сколько длилось («toda la semana»), действие показано целиком → indefinido. Это правило из «Narrar historias II».'},
+ {s:'___ en esa empresa durante diez años.', v:'trabajar',p:0,t:'ind',m:'durante diez años',why:'Срок «durante diez años» → indefinido. Без срока («en aquella época trabajaba…») был бы imperfecto.'},
+ {s:'Ayer ___ un accidente en la autopista.', v:'hay',p:2,t:'ind',m:'Ayer',why:'Одно событие → hubo. Hay → hubo (событие) / había (описание).'},
+ {s:'El sábado ___ diez kilómetros por la montaña.', v:'andar',p:3,t:'ind',m:'El sábado',why:'Конкретный день → indefinido. andar → anduvimos (не «andamos»).'},
+ {s:'El año pasado mi hermana ___ una novela del inglés al español.', v:'traducir',p:2,t:'ind',m:'El año pasado',why:'Закрытый год → indefinido. traducir → tradujo.'},
+ {s:'Anoche mi vecino ___ un ruido muy raro en la escalera.', v:'oír',p:2,t:'ind',m:'Anoche',why:'«Anoche» → indefinido. oír → oyó (i → y).'},
+ {s:'¿Y tus padres te ___ cuando les contaste la verdad?', v:'creer',p:5,t:'ind',m:'cuando les contaste',why:'Реакция в конкретный момент → indefinido. creer → creyeron.'},
+ {s:'Ayer mi hijo ___ de la bici.', v:'caerse',p:2,t:'ind',m:'Ayer',why:'«Ayer» → indefinido. caerse → se cayó.'},
+ {s:'Después de la película, ___ hablando dos horas más.', v:'seguir',p:5,t:'ind',m:'dos horas más',why:'Указан срок → indefinido. seguir → siguieron (e → i).'},
+ {s:'Al llegar al aeropuerto, ___ de que no tenía el pasaporte.', v:'darse cuenta',p:0,t:'ind',m:'no tenía el pasaporte',why:'Момент «осознала» — событие → me di cuenta. «No tenía» — фон, imperfecto.'},
+ {s:'No ___ todos en el coche, así que fuimos en dos coches.', v:'caber',p:3,t:'ind',m:'así que fuimos en dos coches',why:'Одна конкретная ситуация с результатом → indefinido. caber → cupimos.'},
+ {s:'Ayer ___ los libros a la biblioteca.', v:'devolver',p:0,t:'ind',m:'Ayer',why:'«Ayer» → indefinido.'},
+ {s:'Ayer ___ las llaves en el trabajo.', v:'olvidar',p:0,t:'ind',m:'Ayer',why:'«Ayer» → indefinido.'},
+ {s:'Mi hijo ___ a leer a los cinco años.', v:'aprender',p:2,t:'ind',m:'a los cinco años',why:'Одно событие в определённый момент жизни → indefinido.'},
+
+ {s:'Cuando ___ niña, vivía en un pueblo pequeño.', v:'ser',p:0,t:'imp',m:'vivía en un pueblo',why:'«Cuando era niña» — описание периода жизни → imperfecto. ser → era.'},
+ {s:'De pequeño, mi hermano siempre ___ al fútbol en la calle.', v:'jugar',p:2,t:'imp',m:'siempre',why:'«De pequeño» + «siempre» — привычка в прошлом → imperfecto.'},
+ {s:'Antes ___ en el centro, pero ahora vivimos en las afueras.', v:'vivir',p:3,t:'imp',m:'Antes',why:'«Antes… ahora» — как было раньше → imperfecto (presente → imperfecto).'},
+ {s:'De niña, todos los veranos ___ a la playa con mis primos.', v:'ir',p:0,t:'imp',m:'todos los veranos',why:'Повторялось каждое лето → imperfecto. ir → iba.'},
+ {s:'Eran las diez de la noche y ___ mucho frío.', v:'hacer',p:2,t:'imp',m:'Eran las diez de la noche',why:'Время и погода как фон сцены → imperfecto.'},
+ {s:'Mi abuelo ___ el pelo blanco y los ojos azules.', v:'tener',p:2,t:'imp',m:'el pelo blanco',why:'Описание внешности в прошлом → imperfecto.'},
+ {s:'Mientras yo cocinaba, los niños ___ la tele.', v:'ver',p:5,t:'imp',m:'Mientras',why:'«Mientras» — два параллельных процесса → imperfecto. ver → veían.'},
+ {s:'Antes no ___ hablar inglés, ahora sí.', v:'saber',p:0,t:'imp',m:'Antes',why:'Состояние в прошлом («не умела») → imperfecto.'},
+ {s:'Cuando éramos estudiantes, ___ muy poco dinero.', v:'tener',p:3,t:'imp',m:'Cuando éramos estudiantes',why:'Описание ситуации в период жизни → imperfecto.'},
+ {s:'Ayer no fui a clase porque ___ enferma.', v:'estar',p:0,t:'imp',alt:['ind'],m:'porque',why:'Причина-состояние — фон к событию «no fui» → imperfecto. «Estuve enferma» тоже возможно, если показать болезнь целиком.'},
+ {s:'Cuando erais pequeños, ¿qué ___ los fines de semana?', v:'hacer',p:4,t:'imp',m:'los fines de semana',why:'Привычка в детстве → imperfecto.'},
+ {s:'La casa ___ muy grande y tenía un jardín precioso.', v:'ser',p:2,t:'imp',m:'tenía un jardín',why:'Описание места → imperfecto.'},
+ {s:'Cuando vivíamos en el pueblo, mis padres ___ muy temprano.', v:'levantarse',p:5,t:'imp',m:'Cuando vivíamos en el pueblo',why:'Привычка в прошлом периоде → imperfecto. se levantaban.'},
+ {s:'Antes mi madre ___ en un banco; ahora es profesora.', v:'trabajar',p:2,t:'imp',m:'Antes',why:'«Antes» — как было раньше → imperfecto.'},
+ {s:'Yo ___ a casa cuando empezó a llover.', v:'volver',p:0,t:'imp',m:'cuando empezó a llover',why:'Процесс (шла домой), который прервало событие → imperfecto.'},
+ {s:'De pequeña ___ ser médica.', v:'querer',p:0,t:'imp',m:'De pequeña',why:'Желание в детстве — состояние → imperfecto.'},
+ {s:'Antes mi padre ___ un coche viejo y muy lento.', v:'conducir',p:2,t:'imp',m:'Antes',why:'Как было раньше, привычка → imperfecto.'},
+ {s:'Cuando era joven, mi abuela ___ todos los días al mercado.', v:'ir',p:2,t:'imp',m:'todos los días',why:'Привычка → imperfecto. ir → iba.'},
+ {s:'De estudiante, ___ mucho café por las noches.', v:'beber',p:0,t:'imp',m:'De estudiante',why:'Привычка в период жизни → imperfecto.'},
+ {s:'Antes ___ con mis amigos todos los viernes.', v:'salir',p:0,t:'imp',m:'todos los viernes',why:'Повторялось каждую пятницу → imperfecto.'},
+ {s:'De niña ___ un diario todas las noches.', v:'escribir',p:0,t:'imp',m:'todas las noches',why:'Привычка → imperfecto.'},
+ {s:'Cuando era joven, ___ mucho por trabajo.', v:'viajar',p:0,t:'imp',m:'Cuando era joven',why:'Период жизни, повторяющееся действие → imperfecto.'},
+ {s:'Antes no ___ tantos coches en las calles.', v:'hay',p:2,t:'imp',m:'Antes',why:'Описание того, как было раньше: hay → había.'},
+ {s:'En mi pueblo ___ una plaza muy bonita con una fuente.', v:'hay',p:2,t:'imp',m:'una plaza muy bonita',why:'Описание места → había.'},
+ {s:'De pequeña ___ ir al campo todos los domingos.', v:'soler',p:0,t:'imp',m:'todos los domingos',why:'soler + инфинитив — привычка в прошлом → solía.'},
+ {s:'Cuando vivíamos con ellos, mis abuelos ___ cenar muy pronto.', v:'soler',p:5,t:'imp',m:'Cuando vivíamos con ellos',why:'Привычка → solían + инфинитив.'},
+ {s:'Antes ___ mucho, pero ya no.', v:'fumar',p:0,t:'imp',m:'ya no',why:'Antes + imperfecto… pero ya no: привычки больше нет. Глагол после «ya no» носители обычно опускают.'},
+ {s:'En aquella época mi padre ___ en una fábrica de coches.', v:'trabajar',p:2,t:'imp',m:'En aquella época',why:'Описание периода без указания срока → imperfecto. Со сроком («durante diez años») был бы indefinido.'},
+ {s:'De jóvenes, mis abuelos no ___ ordenador.', v:'usar',p:5,t:'imp',m:'De jóvenes',why:'Как было раньше → imperfecto.'},
+ {s:'Mientras esperaba, ___ el móvil cada cinco minutos.', v:'mirar',p:0,t:'imp',m:'cada cinco minutos',why:'Повторяющееся действие на фоне → imperfecto.'},
+ {s:'Aquel día ___ un vestido rojo precioso.', v:'llevar',p:0,t:'imp',m:'un vestido rojo precioso',why:'Описание внешности → imperfecto.'},
+ {s:'Recuerdo que aquel verano ___ muchísimo calor.', v:'hacer',p:2,t:'imp',alt:['ind'],m:'Recuerdo que',why:'Оба варианта есть в книге: hacía — мы «внутри» того лета, hizo — смотрим на лето целиком, снаружи.'},
+
+ {s:'Hoy ___ muy temprano.', v:'levantarse',p:0,t:'per',alt:['ind'],m:'Hoy',why:'«Hoy» — день ещё идёт, обычно perfecto: me he levantado.'+PERSP},
+ {s:'Esta semana ___ muchísimo.', v:'trabajar',p:3,t:'per',m:'Esta semana',why:'Период включает «сейчас» → perfecto.'},
+ {s:'¿Alguna vez ___ paella valenciana?', v:'comer',p:1,t:'per',m:'Alguna vez',why:'Жизненный опыт до сегодняшнего дня → perfecto.'},
+ {s:'Todavía no ___ los deberes.', v:'hacer',p:0,t:'per',m:'Todavía no',why:'«Todavía no» (ещё не) — ожидается до сих пор → perfecto. hecho.'},
+ {s:'Este año mis padres ___ dos veces a Japón.', v:'viajar',p:5,t:'per',m:'Este año',why:'Год ещё идёт → perfecto.'},
+ {s:'Esta mañana Laura ___ un correo muy importante.', v:'escribir',p:2,t:'per',alt:['ind'],m:'Esta mañana',why:'Часть сегодняшнего дня → обычно perfecto: ha escrito.'+PERSP},
+ {s:'Nunca ___ a Argentina, pero me encantaría.', v:'ir',p:0,t:'per',m:'me encantaría',why:'Опыт за всю жизнь до сейчас («me encantaría» — смотрим из настоящего) → perfecto.'},
+ {s:'¿Ya ___ la nueva película de Almodóvar?', v:'ver',p:4,t:'per',m:'Ya',why:'«Ya» (уже) → perfecto. visto.'},
+ {s:'Hoy el jefe nos ___ una buena noticia, ¡estamos muy contentos!', v:'dar',p:2,t:'per',m:'estamos muy contentos',why:'Связь с настоящим: мы рады сейчас → perfecto.'},
+ {s:'¿Quién ___ la ventana? Hace mucho frío.', v:'abrir',p:2,t:'per',m:'Hace mucho frío',why:'Результат виден сейчас → perfecto. abierto.'},
+ {s:'Últimamente ___ muy poco.', v:'dormir',p:3,t:'per',m:'Últimamente',why:'«Últimamente» (в последнее время) → perfecto.'},
+ {s:'Esta tarde los niños ___ un jarrón.', v:'romper',p:5,t:'per',alt:['ind'],m:'Esta tarde',why:'Сегодня → обычно perfecto: han roto.'+PERSP},
+ {s:'¿Dónde ___ las llaves? No las encuentro.', v:'poner',p:1,t:'per',m:'No las encuentro',why:'Связь с настоящим (ищу их сейчас) → perfecto. puesto.'},
+ {s:'Este fin de semana ___ en casa con la familia.', v:'estar',p:3,t:'per',m:'Este fin de semana',why:'Текущий период → perfecto.'},
+ {s:'Esta mañana ___ a mi madre por teléfono.', v:'llamar',p:0,t:'per',alt:['ind'],m:'Esta mañana',why:'Сегодня утром → обычно perfecto.'+PERSP},
+ {s:'Este mes ___ tres libros.', v:'leer',p:0,t:'per',m:'Este mes',why:'Месяц ещё идёт → perfecto. leído.'},
+ {s:'Hoy ___ mucha agua, ya no tengo sed.', v:'beber',p:0,t:'per',m:'ya no tengo sed',why:'Результат сейчас (больше не хочу пить) → perfecto.'},
+ {s:'Esta semana mis hijos ___ mucho para el examen.', v:'estudiar',p:5,t:'per',m:'Esta semana',why:'Неделя ещё идёт → perfecto.'},
+ {s:'Siempre ___ en esta ciudad.', v:'vivir',p:3,t:'per',m:'Siempre',why:'«Всегда» до сих пор, и сейчас тоже → perfecto.'},
+ {s:'Hoy ___ un día horrible, estoy agotada.', v:'tener',p:0,t:'per',m:'estoy agotada',why:'Связь с тем, как я себя чувствую сейчас → perfecto.'},
+ {s:'¿Qué te ___ el médico esta mañana?', v:'decir',p:2,t:'per',alt:['ind'],m:'esta mañana',why:'Сегодня утром → обычно perfecto. dicho.'+PERSP},
+ {s:'Este año ___ muchos turistas a la ciudad.', v:'venir',p:5,t:'per',m:'Este año',why:'Год ещё идёт → perfecto.'},
+ {s:'Esta semana no ___ ir al gimnasio.', v:'poder',p:0,t:'per',m:'Esta semana',why:'Неделя ещё идёт → perfecto.'},
+ {s:'Ya ___ la comida, llegará en veinte minutos.', v:'pedir',p:3,t:'per',m:'Ya',why:'«Ya» + результат сейчас → perfecto.'},
+ {s:'Este mes ___ demasiadas cosas.', v:'comprar',p:0,t:'per',m:'Este mes',why:'Месяц ещё идёт → perfecto.'},
+ {s:'¿Ya ___ los invitados?', v:'llegar',p:5,t:'per',m:'Ya',why:'«Ya» → perfecto.'},
+ {s:'Hoy ___ un día muy largo.', v:'ser',p:2,t:'per',m:'Hoy',why:'День ещё не закончился → perfecto. ha sido.'},
+ {s:'Hace un rato ___ a tu hermano en el supermercado.', v:'ver',p:0,t:'per',alt:['ind'],m:'Hace un rato',why:'С «hace un rato» по книге возможны оба времени: he visto (связываю с сейчас) или vi.'},
+ {s:'Hoy ___ mucho tráfico en el centro.', v:'hay',p:2,t:'per',alt:['ind'],m:'Hoy',why:'Hoy → обычно ha habido.'+PERSP},
+ {s:'Esta semana unos científicos ___ un nuevo planeta.', v:'descubrir',p:5,t:'per',m:'Esta semana',why:'Неделя ещё идёт → perfecto. descubierto.'},
+ {s:'Esta mañana ___ el autobús de las ocho.', v:'coger',p:0,t:'per',alt:['ind'],m:'Esta mañana',why:'Сегодня утром → обычно perfecto: he cogido.'+PERSP},
+].map((x,i)=>({...x,id:i}));
+
+// истории: строки и пропуски {v,p,t,alt,why}
+const STORIES = [
+ {id:'cafe', title:'Una mañana con sorpresa', parts:[
+  '¿Sabes lo que me pasó el lunes? ',
+  {v:'ser',p:2,t:'imp',why:'Время как фон сцены: era muy temprano.'},
+  ' muy temprano y ',
+  {v:'llover',p:2,t:'imp',why:'Погода как фон сцены.'},
+  ' muchísimo. Yo ',
+  {v:'estar',p:0,t:'imp',why:'Где я была — фон, ситуация.'},
+  ' en la parada del autobús cuando, de repente, ',
+  {v:'ver',p:0,t:'ind',why:'«De repente» — событие, сюжет начинается.'},
+  ' a mi antiguo profesor de español. Me ',
+  {v:'saludar',p:2,t:'ind',why:'Следующее событие в цепочке.'},
+  ' y me ',
+  {v:'preguntar',p:2,t:'ind',why:'И ещё одно событие.'},
+  ' por mi familia. Como el autobús no ',
+  {v:'llegar',p:2,t:'imp',why:'Ситуация-причина, фон (автобус всё не шёл).'},
+  ', ',
+  {v:'decidir',p:3,t:'ind',why:'Решение — событие, двигает сюжет.'},
+  ' tomar un café juntos. Total, que ',
+  {v:'llegar',p:0,t:'ind',why:'Итог истории — событие.'},
+  ' tarde al trabajo, ¡pero ',
+  {v:'ser',p:2,t:'ind',alt:['imp'],why:'Оценка всего утра целиком, взгляд снаружи → fue. «Era» тоже возможно.'},
+  ' una mañana preciosa!']},
+ {id:'pueblo', title:'Mi infancia en el pueblo', parts:[
+  'Cuando ',
+  {v:'ser',p:0,t:'imp',why:'Период жизни — описание.'},
+  ' pequeña, ',
+  {v:'vivir',p:3,t:'imp',why:'Как было в детстве.'},
+  ' en un pueblo de montaña. En el pueblo solo ',
+  {v:'hay',p:2,t:'imp',why:'Описание места: hay → había.'},
+  ' una tienda y una escuela. Todos los veranos mis primos ',
+  {v:'venir',p:5,t:'imp',why:'«Todos los veranos» — повторялось.'},
+  ' a casa y ',
+  {v:'soler',p:3,t:'imp',why:'soler + инфинитив — привычка: solíamos.'},
+  ' bañarnos en el río. Pero un verano, mi primo Pablo ',
+  {v:'caerse',p:2,t:'ind',why:'«Un verano» — одно событие, сюжет: se cayó.'},
+  ' de un árbol y ',
+  {v:'romperse',p:2,t:'ind',why:'Следующее событие: se rompió.'},
+  ' el brazo. Sus padres lo ',
+  {v:'llevar',p:5,t:'ind',why:'Событие: отвезли.'},
+  ' al hospital de la ciudad. Desde ese día, ya no ',
+  {v:'subir',p:3,t:'imp',why:'«Ya no» + привычка в прошлом → imperfecto: больше не залезали.'},
+  ' a los árboles.']},
+ {id:'semana', title:'Una semana intensa', parts:[
+  'Esta semana ',
+  {v:'ser',p:2,t:'per',why:'Неделя ещё идёт → ha sido.'},
+  ' muy intensa. El lunes ',
+  {v:'empezar',p:0,t:'ind',alt:['per'],why:'Конкретный день — empecé. «He empezado» тоже возможно: этот понедельник входит в текущую неделю.'},
+  ' un trabajo nuevo y todavía no ',
+  {v:'conocer',p:0,t:'per',why:'«Todavía no» → perfecto.'},
+  ' a todos mis compañeros. Ayer ',
+  {v:'tener',p:0,t:'ind',why:'«Ayer» → indefinido: tuve.'},
+  ' mi primera reunión con la jefa y me ',
+  {v:'decir',p:2,t:'ind',why:'Событие вчера: dijo.'},
+  ' que estaba muy contenta conmigo. Hoy ',
+  {v:'levantarse',p:0,t:'per',alt:['ind'],why:'«Hoy» → обычно me he levantado.'},
+  ' a las seis y ',
+  {v:'hacer',p:0,t:'per',alt:['ind'],why:'Тоже сегодня → he hecho.'},
+  ' deporte antes de ir a la oficina. ¡Nunca ',
+  {v:'estar',p:0,t:'per',why:'«Nunca» — за всю жизнь до сейчас → he estado.'},
+  ' tan motivada!']},
+ {id:'lisboa', title:'Un viaje a Lisboa', parts:[
+  'El año pasado ',
+  {v:'ir',p:3,t:'ind',why:'Закрытый год → fuimos.'},
+  ' a Lisboa. ',
+  {v:'estar',p:3,t:'ind',why:'Со сроком («cinco días») → estuvimos.'},
+  ' allí cinco días y ',
+  {v:'llover',p:2,t:'ind',why:'Со сроком («todo el tiempo» — все пять дней) → llovió.'},
+  ' todo el tiempo, pero no nos importó. El hotel ',
+  {v:'ser',p:2,t:'imp',why:'Описание места → era.'},
+  ' pequeño, pero ',
+  {v:'tener',p:2,t:'imp',why:'Описание → tenía.'},
+  ' unas vistas preciosas. Por las mañanas ',
+  {v:'desayunar',p:3,t:'imp',why:'«Por las mañanas» — привычка в поездке → desayunábamos.'},
+  ' en una pastelería del barrio. Un día ',
+  {v:'conocer',p:3,t:'ind',why:'«Un día» — событие: conocimos.'},
+  ' a una pareja de Valencia y ',
+  {v:'cenar',p:3,t:'ind',why:'Следующее событие: cenamos.'},
+  ' con ellos. Total, que ',
+  {v:'volver',p:3,t:'ind',why:'Итог истории: volvimos.'},
+  ' a casa con nuevos amigos.']},
+ {id:'ruido', title:'Un ruido en la noche', parts:[
+  '¡No te imaginas lo que nos ocurrió anoche! ',
+  {v:'ser',p:2,t:'imp',why:'Время как фон: eran las… / era medianoche.'},
+  ' medianoche y todos ',
+  {v:'dormir',p:5,t:'imp',why:'Процесс в фоне: все спали.'},
+  '. De pronto, mi marido ',
+  {v:'oír',p:2,t:'ind',why:'«De pronto» — событие: oyó.'},
+  ' un ruido en la cocina. ',
+  {v:'levantarse',p:3,t:'ind',why:'Цепочка событий: nos levantamos.'},
+  ' y ',
+  {v:'andar',p:3,t:'ind',why:'Событие: anduvimos (сильная основа anduv-).'},
+  ' muy despacio por el pasillo. La luz de la cocina ',
+  {v:'estar',p:2,t:'imp',why:'Описание того, что увидели: estaba encendida.'},
+  ' encendida y ',
+  {v:'hay',p:2,t:'imp',why:'Описание сцены: había.'},
+  ' algo en el suelo. Entonces ',
+  {v:'darse cuenta',p:3,t:'ind',why:'Момент осознания — событие: nos dimos cuenta.'},
+  ' de que era nuestro gato, ¡comiendo jamón! ¡Madre mía!']},
+];
+
+// ---------- хранилище ----------
+const KEY='tres-pasados-v1';
+const INT=[60e3, 10*60e3, 864e5, 3*864e5, 7*864e5, 21*864e5];
+let S;
+function fresh(){return {items:{}, day:{d:'',n:0,ok:0}, tenses:['ind','imp','per'], group:'all'}}
+try{ S = JSON.parse(localStorage.getItem(KEY)) || fresh(); }catch(e){ S = fresh(); }
+if(!S.items) S = fresh();
+// старые сохранения могли хранить два времени из трёх — приводим к «одно или все»
+if(!Array.isArray(S.tenses) || S.tenses.length!==1) S.tenses=['ind','imp','per'];
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+function todayStr(){ const d=new Date(); return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate(); }
+function bump(ok){ const t=todayStr(); if(S.day.d!==t) S.day={d:t,n:0,ok:0}; S.day.n++; if(ok) S.day.ok++; }
+function renderToday(){ const t=todayStr(); const d=S.day.d===t?S.day:{n:0,ok:0};
+  document.getElementById('today').innerHTML = 'Сегодня: <b>'+d.n+'</b> заданий<br>верно: <b>'+d.ok+'</b>'; }
+
+function grade(key, res){
+  const now=Date.now(); const it=S.items[key]||{b:0,due:0,ok:0,bad:0,seen:0};
+  it.seen++;
+  if(res==='ok'){ it.b=Math.min(5,it.b+1); it.ok++; it.due=now+INT[it.b]; }
+  else if(res==='bad'){ it.b=0; it.bad++; it.due=now+INT[0]; }
+  else { it.due=now+5*60e3; }
+  S.items[key]=it; bump(res==='ok'); save(); renderToday();
+}
+let lastKey=null;
+function pick(cands){
+  const now=Date.now();
+  let pool=cands.filter(c=>c.key!==lastKey);
+  if(!pool.length) pool=cands;
+  const sc=pool.map(c=>{const it=S.items[c.key]; return {c, b: it? it.b : 0.5, due: it? it.due : 0};});
+  const due=sc.filter(x=>x.due<=now);
+  const use=due.length?due:sc;
+  use.sort((a,b)=>(a.b-b.b)||(a.due-b.due)||(Math.random()-.5));
+  const top=use.slice(0,Math.min(5,use.length));
+  const ch=top[Math.floor(Math.random()*top.length)].c;
+  lastKey=ch.key; return ch;
+}
+
+// ---------- сравнение ----------
+const clean=s=>s.toLowerCase().replace(/[¿?¡!.,;]/g,'').replace(/\s+/g,' ').trim();
+const plain=s=>clean(s).normalize('NFD').replace(/[̀-ͯ]/g,'');
+function cmp(given, right){ if(clean(given)===clean(right)) return 'ok'; if(given && plain(given)===plain(right)) return 'acc'; return 'bad'; }
+// пропуск с возможными альтернативами: {res, t (какое время совпало), main}
+function judge(given, g){
+  const v=VMAP[g.v], ts=[g.t,...(g.alt||[])];
+  let best={res:'bad',t:null};
+  for(const t of ts){ const r=cmp(given, conj(v,t)[g.p]);
+    if(r==='ok') return {res:'ok',t};
+    if(r==='acc' && best.res==='bad') best={res:'acc',t}; }
+  return best;
+}
+const formOf=(g,t)=>conj(VMAP[g.v],t||g.t)[g.p];
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+// ---------- ввод с ударениями ----------
+let lastInput=null;
+document.addEventListener('focusin',e=>{ if(e.target.matches('input.ans')) lastInput=e.target; });
+function keysHTML(){ return '<div class="keys" aria-label="Буквы с ударением">'+['á','é','í','ó','ú','ñ'].map(c=>'<button type="button" data-ch="'+c+'">'+c+'</button>').join('')+'</div>'; }
+document.addEventListener('mousedown',e=>{ if(e.target.closest('.keys button')) e.preventDefault(); });
+document.addEventListener('click',e=>{ const b=e.target.closest('.keys button'); if(!b||!lastInput||lastInput.readOnly) return;
+  const i=lastInput, s=i.selectionStart??i.value.length, en=i.selectionEnd??s;
+  i.value=i.value.slice(0,s)+b.dataset.ch+i.value.slice(en); i.focus(); i.setSelectionRange(s+1,s+1); });
+
+// ---------- озвучка (голос браузера, испанский из Испании) ----------
+const TTS_OK = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
+let esVoice=null;
+// на macOS есть «игрушечные» голоса (Eddy, Grandma…) — берём их только в последнюю очередь
+const NOVELTY=/eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley|bad news|bells|boing|bubbles|jester|wobble|whisper|zarvox|trinoids|organ|cellos|albert|fred|junior|kathy|ralph|superstar|bahh/i;
+function findVoice(){ try{ const vs=speechSynthesis.getVoices().filter(v=>/^es/i.test(v.lang));
+  const es=vs.filter(v=>/^es[-_]ES/i.test(v.lang)), good=es.filter(v=>!NOVELTY.test(v.name));
+  esVoice = good.find(v=>/m[oó]nica|jorge|google|elvira|alvaro|álvaro|lucia|lucía|enrique|conchita|marisol/i.test(v.name)) || good[0]
+    || vs.find(v=>!NOVELTY.test(v.name)) || es[0] || vs[0] || null; }catch(e){} }
+if(TTS_OK){ findVoice(); try{ speechSynthesis.addEventListener('voiceschanged',findVoice); }catch(e){} }
+function say(text, rate){
+  if(!TTS_OK) return false;
+  try{ speechSynthesis.cancel(); if(!esVoice) findVoice();
+    const u=new SpeechSynthesisUtterance(text); u.lang='es-ES'; if(esVoice) u.voice=esVoice; u.rate=rate; speechSynthesis.speak(u); return true; }catch(e){ return false; }
+}
+const ICON='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>';
+function listenHTML(text){
+  if(!TTS_OK) return '';
+  const t=encodeURIComponent(text);
+  return '<div class="listen"><button type="button" class="say" data-say="'+t+'" data-rate="0.95">'+ICON+'Послушать</button><button type="button" class="say" data-say="'+t+'" data-rate="0.65">Медленно</button><span class="hint say-msg"></span></div>';
+}
+document.addEventListener('click',e=>{ const b=e.target.closest('[data-say]'); if(!b) return;
+  const ok=say(decodeURIComponent(b.dataset.say), +b.dataset.rate);
+  const msg=b.parentElement.querySelector('.say-msg');
+  if(msg) msg.textContent = !ok ? 'Озвучка не работает в этом браузере.' : (!esVoice ? 'Испанского голоса не нашлось, читает голос по умолчанию.' : '');
+});
+const fullSentence=(s,t)=>s.s.replace('___', formOf(s,t));
+const fullStory=st=>st.parts.map(p=>typeof p==='string'?p:formOf(p)).join('');
+
+function dots(key){ const b=(S.items[key]||{b:0}).b; let h='<div class="box-dots" title="Уровень запоминания">'; for(let i=1;i<=5;i++) h+='<i class="'+(i<=b?'on':'')+'"></i>'; return h+'</div>'; }
+
+// ---------- 1. Спряжение ----------
+const conjCard=document.getElementById('conj-card');
+let cur=null;
+const PAR = VERBS.filter(v=>!v.noPar);
+function nextConj(){
+  const vs = S.group==='all'?PAR:PAR.filter(v=>v.g===S.group);
+  const cands=[]; vs.forEach(v=>S.tenses.filter(t=>tensesFor(v).includes(t)).forEach(t=>cands.push({v,t,key:'p:'+v.k+':'+t})));
+  if(!cands.length){ conjCard.innerHTML='<p>Для этого фильтра нет глаголов. Выбери другое время или группу.</p>'; return; }
+  cur=pick(cands); cur.done=false; renderConj();
+}
+function renderConj(){
+  const {v,t,key}=cur;
+  conjCard.innerHTML =
+    '<div class="verbhead"><div><h2>'+esc(v.k)+'</h2><div class="ru">'+esc(v.ru)+'</div>'+dots(key)+'</div><span class="tense '+t+'">'+TN[t]+'</span></div>'+
+    '<div class="rows">'+P.map((p,i)=>'<label for="c'+i+'">'+p+'</label><div class="field"><input class="ans" id="c'+i+'" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"><span class="fix" id="cf'+i+'"></span></div>').join('')+'</div>'+
+    keysHTML()+
+    '<div id="c-note"></div>'+
+    '<div class="actions"><button class="btn primary" id="c-go">Проверить</button><button class="btn ghost" id="c-show">Не помню, покажи</button><span class="hint">Enter — следующая строка / проверить</span></div>';
+  const ins=[...conjCard.querySelectorAll('input.ans')];
+  ins.forEach((inp,i)=>inp.addEventListener('keydown',e=>{ if(e.key!=='Enter') return; e.preventDefault();
+    if(cur.done){ nextConj(); return; } if(i<5) ins[i+1].focus(); else checkConj(false); }));
+  document.getElementById('c-go').onclick=()=>cur.done?nextConj():checkConj(false);
+  document.getElementById('c-show').onclick=()=>{ if(!cur.done) checkConj(true); };
+  if(document.getElementById('tab-conj').hidden===false) ins[0].focus({preventScroll:true});
+}
+function checkConj(reveal){
+  const {v,t,key}=cur, right=conj(v,t); let worst='ok';
+  right.forEach((r,i)=>{ const inp=document.getElementById('c'+i), fx=document.getElementById('cf'+i);
+    const res = reveal ? 'bad' : cmp(inp.value,r);
+    if(reveal && !inp.value) inp.value=r;
+    inp.classList.add(res==='acc'?'acc':res); inp.readOnly=true;
+    if(res==='bad'){ fx.className='fix bad'; fx.innerHTML='правильно: <b>'+esc(r)+'</b>'; worst='bad'; }
+    else if(res==='acc'){ fx.className='fix acc'; fx.innerHTML='ударение: <b>'+esc(r)+'</b>'; if(worst!=='bad') worst='acc'; }
+  });
+  grade(key,worst); cur.done=true;
+  const note=v.n&&v.n[t];
+  const msg = worst==='ok' ? '<div class="verdict ok"><strong>¡Perfecto! Все шесть форм верно.</strong></div>'
+    : worst==='acc' ? '<div class="verdict acc"><strong>Почти. Проверь ударения.</strong><span>Ударение меняет смысл: hablo «я говорю» и habló «он сказал».</span></div>'
+    : '<div class="verdict bad"><strong>Есть ошибки.</strong><span>Скажи правильные формы вслух. Этот глагол вернётся через минуту.</span></div>';
+  const spoken=right.map((r,i)=>PS[i]+', '+r).join('. ')+'.';
+  document.getElementById('c-note').innerHTML = msg + (note? '<div class="note" style="margin-top:10px">'+esc(note)+'</div>':'') + '<div style="margin-top:10px">'+listenHTML(spoken)+'</div>';
+  const go=document.getElementById('c-go'); go.textContent='Дальше →'; go.focus({preventScroll:true});
+  document.getElementById('c-show').hidden=true;
+}
+
+// время: выбирается ровно один вариант — одно время или все три
+document.getElementById('f-tense').addEventListener('click',e=>{ const b=e.target.closest('.chip'); if(!b) return;
+  const t=b.dataset.t;
+  S.tenses = t==='all' ? ['ind','imp','per'] : [t]; save(); syncFilters(); nextConj(); });
+document.getElementById('f-group').addEventListener('click',e=>{ const b=e.target.closest('.chip'); if(!b) return;
+  S.group=b.dataset.g; save(); syncFilters(); nextConj(); });
+function syncFilters(){
+  const mode = S.tenses.length===1 ? S.tenses[0] : 'all';
+  document.querySelectorAll('#f-tense .chip').forEach(b=>b.setAttribute('aria-pressed',b.dataset.t===mode));
+  document.querySelectorAll('#f-group .chip').forEach(b=>b.setAttribute('aria-pressed',S.group===b.dataset.g));
+}
+
+// ---------- предложения ----------
+function sentenceHTML(s, fill, tcls){
+  const parts=s.s.split('___');
+  const mk = txt => { let h=esc(txt); if(fill!=null && s.m){ const m=esc(s.m); const i=h.indexOf(m); if(i>=0) h=h.slice(0,i)+'<mark class="'+tcls+'">'+m+'</mark>'+h.slice(i+m.length); } return h; };
+  const blank = fill!=null ? '<span class="blank filled '+tcls+'">'+esc(fill)+'</span>' : '<span class="blank">'+'_'.repeat(6)+'</span>';
+  return '<div class="sentence">'+mk(parts[0])+blank+mk(parts[1]||'')+'</div>';
+}
+function promptHTML(s){ const v=VMAP[s.v];
+  if(v.fixed) return '<div class="prompt"><b>haber</b><span>· форма от «hay» · '+esc(v.ru)+'</span></div>';
+  return '<div class="prompt"><b>'+esc(s.v)+'</b><span>· '+PS[s.p]+' · '+esc(v.ru)+'</span></div>'; }
+function shuffle(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+function alsoHTML(g, usedT){
+  const others=[g.t,...(g.alt||[])].filter(t=>t!==usedT);
+  return others.length ? '<span class="also">Тоже верно: <b>'+others.map(t=>esc(formOf(g,t))+'</b> ('+TN[t]+')').join(', <b>')+'</span>' : '';
+}
+
+// ---------- 2. Выбери ----------
+const chCard=document.getElementById('choose-card'); let chCur=null;
+const CHOOSABLE = SENT.filter(s=>!VMAP[s.v].only);
+function nextChoose(){
+  chCur=pick(CHOOSABLE.map(s=>({s,key:'c:'+s.id}))); chCur.done=false;
+  chCur.opts=shuffle(['ind','imp','per'].map(t=>({t,f:formOf(chCur.s,t)})));
+  renderChoose();
+}
+function renderChoose(){
+  const {s,opts}=chCur;
+  chCard.innerHTML = promptHTML(s)+'<div id="ch-sent">'+sentenceHTML(s,null)+'</div>'+
+    '<div class="options">'+opts.map((o,i)=>'<button class="opt" data-i="'+i+'">'+esc(o.f)+'<small class="'+o.t+'">'+TN[o.t]+'</small></button>').join('')+'</div>'+
+    '<div id="ch-fb"></div><div class="actions"><button class="btn primary" id="ch-next" hidden>Дальше →</button></div>';
+  chCard.querySelectorAll('.opt').forEach(b=>b.onclick=()=>answerChoose(+b.dataset.i));
+  document.getElementById('ch-next').onclick=nextChoose;
+}
+function answerChoose(i){
+  if(chCur.done) return; chCur.done=true;
+  const {s,opts,key}=chCur, okTs=[s.t,...(s.alt||[])], pickedT=opts[i].t, ok=okTs.includes(pickedT);
+  chCard.querySelectorAll('.opt').forEach((b,j)=>{ b.disabled=true; b.classList.add('shown'); if(okTs.includes(opts[j].t)) b.classList.add('right'); else if(j===i) b.classList.add('wrong'); });
+  const showT = ok ? pickedT : s.t;
+  document.getElementById('ch-sent').innerHTML=sentenceHTML(s,formOf(s,showT),showT);
+  grade(key, ok?'ok':'bad');
+  document.getElementById('ch-fb').innerHTML='<div class="verdict '+(ok?'ok':'bad')+'"><strong>'+(ok?'¡Bien! ':'Нужно: ')+TN[showT]+'</strong><span>'+esc(s.why)+'</span>'+alsoHTML(s,showT)+'</div>'+listenHTML(fullSentence(s,showT));
+  const n=document.getElementById('ch-next'); n.hidden=false; n.focus({preventScroll:true});
+}
+
+// ---------- 3. Вставь ----------
+const wrCard=document.getElementById('write-card'); let wrCur=null;
+function nextWrite(){ wrCur=pick(SENT.map(s=>({s,key:'w:'+s.id}))); wrCur.done=false; wrCur.hinted=false; renderWrite(); }
+function renderWrite(){
+  const {s}=wrCur;
+  wrCard.innerHTML = promptHTML(s)+'<div id="wr-sent">'+sentenceHTML(s,null)+'</div>'+
+    '<div class="field"><input class="ans" id="wr-in" placeholder="напиши форму глагола" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"></div>'+
+    keysHTML()+'<div id="wr-fb"></div>'+
+    '<div class="actions"><button class="btn primary" id="wr-go">Проверить</button><button class="btn ghost" id="wr-hint">Подсказка: время</button></div>';
+  const inp=document.getElementById('wr-in');
+  inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); wrCur.done?nextWrite():checkWrite(); }});
+  document.getElementById('wr-go').onclick=()=>wrCur.done?nextWrite():checkWrite();
+  document.getElementById('wr-hint').onclick=()=>{ wrCur.hinted=true; document.getElementById('wr-fb').innerHTML=[s.t,...(s.alt||[])].map(t=>'<span class="tense '+t+'">'+TN[t]+'</span>').join(' или '); inp.focus(); };
+  if(document.getElementById('tab-write').hidden===false) inp.focus({preventScroll:true});
+}
+function checkWrite(){
+  const {s,key}=wrCur, inp=document.getElementById('wr-in');
+  if(!inp.value.trim()){ inp.focus(); return; }
+  const j=judge(inp.value,s), showT=j.t||s.t, right=formOf(s,showT);
+  inp.classList.add(j.res==='acc'?'acc':j.res); inp.readOnly=true; wrCur.done=true;
+  grade(key, j.res==='ok' && wrCur.hinted ? 'acc' : j.res);
+  document.getElementById('wr-sent').innerHTML=sentenceHTML(s,right,showT);
+  const head = j.res==='ok' ? '¡Muy bien!' : j.res==='acc' ? 'Почти: проверь ударение — '+esc(right) : 'Правильно: '+esc(right);
+  document.getElementById('wr-fb').innerHTML='<div class="verdict '+j.res+'"><strong>'+head+'</strong><span><span class="tense '+showT+'">'+TN[showT]+'</span> '+esc(s.why)+'</span>'+alsoHTML(s,showT)+'</div>'+listenHTML(fullSentence(s,showT));
+  const g=document.getElementById('wr-go'); g.textContent='Дальше →'; g.focus({preventScroll:true});
+  document.getElementById('wr-hint').hidden=true;
+}
+
+// ---------- 4. История ----------
+const stCard=document.getElementById('story-card'); let stCur=null;
+function nextStory(){ stCur=pick(STORIES.map(st=>({st,key:'h:'+st.id}))); stCur.done=false; renderStory(); }
+function renderStory(){
+  const {st,key}=stCur; let n=0;
+  const body=st.parts.map(p=>{ if(typeof p==='string') return esc(p);
+    const i=n++; const lbl=VMAP[p.v].fixed?'hay':p.v+' · '+PS[p.p];
+    return '<span class="gap"><span class="num">'+(i+1)+'</span><input class="ans" id="st'+i+'" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="'+(i+1)+': '+esc(lbl)+'"><small>('+esc(lbl)+')</small></span>'; }).join('');
+  stCard.innerHTML='<div class="verbhead"><h2 class="story-title">'+esc(st.title)+'</h2>'+dots(key)+'</div><p class="story">'+body+'</p>'+keysHTML()+
+    '<div id="st-fb"></div><div class="actions"><button class="btn primary" id="st-go">Проверить</button><span class="hint">Enter — к следующему пропуску</span></div>';
+  const ins=[...stCard.querySelectorAll('input.ans')];
+  ins.forEach((inp,i)=>inp.addEventListener('keydown',e=>{ if(e.key!=='Enter') return; e.preventDefault();
+    if(stCur.done){ nextStory(); return; } if(i<ins.length-1) ins[i+1].focus(); else checkStory(); }));
+  document.getElementById('st-go').onclick=()=>stCur.done?nextStory():checkStory();
+  if(document.getElementById('tab-story').hidden===false) ins[0].focus({preventScroll:true});
+}
+function checkStory(){
+  const {st,key}=stCur; const gaps=st.parts.filter(p=>typeof p!=='string');
+  let worst='ok', okN=0;
+  const items=gaps.map((g,i)=>{ const inp=document.getElementById('st'+i), j=judge(inp.value,g), showT=j.t||g.t, right=formOf(g,showT);
+    inp.classList.add(j.res); inp.readOnly=true;
+    if(j.res==='ok') okN++; else if(j.res==='bad') worst='bad'; else if(worst==='ok') worst='acc';
+    const mine = j.res==='bad' && inp.value.trim() ? '<span class="wrongword">'+esc(inp.value.trim())+'</span> → ' : '';
+    return '<li>'+mine+'<b class="'+showT+'">'+esc(right)+'</b> <span class="tense '+showT+'">'+TN[showT]+'</span> '+esc(g.why)+' '+alsoHTML(g,showT)+'</li>'; });
+  grade(key,worst); stCur.done=true;
+  const head = worst==='ok' ? '<strong>¡Genial! Все '+gaps.length+' пропусков верно.</strong>' : '<strong>Верно '+okN+' из '+gaps.length+'.</strong><span>Прочитай историю вслух с правильными формами. Она вернётся позже.</span>';
+  document.getElementById('st-fb').innerHTML='<div class="verdict '+worst+'">'+head+'</div>'+listenHTML(fullStory(st))+'<ol class="explain">'+items.join('')+'</ol>';
+  const g=document.getElementById('st-go'); g.textContent='Следующая история →'; g.focus({preventScroll:true});
+}
+
+// ---------- 6. Прогресс ----------
+const prCard=document.getElementById('prog-card'); let resetArmed=false;
+function renderProg(){
+  const it=S.items, b=k=>(it[k]||{b:0}).b;
+  const pk=[]; PAR.forEach(v=>tensesFor(v).forEach(t=>pk.push('p:'+v.k+':'+t)));
+  const learned=pk.filter(k=>b(k)>=3).length;
+  const sk=[...CHOOSABLE.map(s=>'c:'+s.id), ...SENT.map(s=>'w:'+s.id), ...STORIES.map(s=>'h:'+s.id)]; const sl=sk.filter(k=>b(k)>=3).length;
+  const weak=Object.entries(it).filter(([k,x])=>k.startsWith('p:')&&x.bad>0&&x.b<2).sort((a,c)=>c[1].bad-a[1].bad).slice(0,16);
+  const total=Object.values(it).reduce((a,x)=>a+x.seen,0);
+  prCard.innerHTML =
+    '<h3>Прогресс</h3>'+
+    '<div class="stats"><div class="stat"><div class="n">'+learned+'<span style="font-size:.5em;color:var(--muted)">/'+pk.length+'</span></div><div class="l">спряжений выучено</div></div>'+
+    '<div class="stat"><div class="n">'+sl+'<span style="font-size:.5em;color:var(--muted)">/'+sk.length+'</span></div><div class="l">фраз и историй выучено</div></div>'+
+    '<div class="stat"><div class="n">'+total+'</div><div class="l">ответов всего</div></div></div>'+
+    (weak.length? '<div><div class="hint" style="margin-bottom:6px">Слабые места — потренируй их в «Спряжении»:</div><div class="weak">'+weak.map(([k])=>{const [,v,t]=k.split(':');return '<span>'+esc(v)+' · '+TN[t]+'</span>';}).join('')+'</div></div>' : '')+
+    '<div class="legend"><span>Полоска заполняется с каждым верным ответом: 5 делений = выучено надолго.</span></div>'+
+    '<div class="tbl-wrap"><table class="grid"><thead><tr><th>глагол</th><th class="c">Indef.</th><th class="c">Imperf.</th><th class="c">Perf.</th></tr></thead><tbody>'+
+    PAR.map(v=>'<tr><td><b>'+esc(v.k)+'</b> <span class="hint">'+esc(v.ru)+'</span></td>'+['ind','imp','per'].map(t=>{ if(!tensesFor(v).includes(t)) return '<td class="c hint">—</td>'; const x=b('p:'+v.k+':'+t);return '<td class="c"><div class="cell '+t+'" title="'+x+'/5"><i style="width:'+(x*20)+'%"></i></div></td>';}).join('')+'</tr>').join('')+
+    '</tbody></table></div>'+
+    '<div class="actions"><button class="btn ghost" id="pr-reset">'+(resetArmed?'Точно стереть весь прогресс? Нажми ещё раз':'Сбросить прогресс')+'</button></div>'+
+    '<p class="hint" style="margin:0">Прогресс хранится в этом браузере на этом устройстве.</p>';
+  const r=document.getElementById('pr-reset'); if(resetArmed) r.classList.add('danger');
+  r.onclick=()=>{ if(!resetArmed){ resetArmed=true; renderProg(); return; } resetArmed=false; const t=S.tenses,g=S.group; S=fresh(); S.tenses=t; S.group=g; save(); renderToday(); renderProg(); };
+}
+
+// ---------- вкладки ----------
+const TABS=['conj','choose','write','story','sheet','prog'];
+const tabs=[...document.querySelectorAll('nav button')];
+function show(name){
+  tabs.forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===name));
+  TABS.forEach(n=>document.getElementById('tab-'+n).hidden=(n!==name));
+  if(name==='prog'){ resetArmed=false; renderProg(); }
+  if(name==='conj' && cur && !cur.done) document.getElementById('c0')?.focus({preventScroll:true});
+  if(name==='write' && wrCur && !wrCur.done) document.getElementById('wr-in')?.focus({preventScroll:true});
+  if(name==='story' && stCur && !stCur.done) document.getElementById('st0')?.focus({preventScroll:true});
+  try{ localStorage.setItem(KEY+'-tab',name); }catch(e){}
+}
+tabs.forEach(b=>b.onclick=()=>show(b.dataset.tab));
+document.addEventListener('keydown',e=>{
+  if(document.getElementById('tab-choose').hidden || !chCur) return;
+  if(e.target.matches('input')) return;
+  if(!chCur.done && ['1','2','3'].includes(e.key)) answerChoose(+e.key-1);
+  else if(chCur.done && e.key==='Enter' && document.activeElement?.id!=='ch-next'){ e.preventDefault(); nextChoose(); }
+});
+
+syncFilters(); renderToday(); nextConj(); nextChoose(); nextWrite(); nextStory();
+let start='conj'; try{ start=localStorage.getItem(KEY+'-tab')||'conj'; }catch(e){}
+show(TABS.includes(start)?start:'conj');
+window.__tp={VERBS,VMAP,SENT,STORIES,conj,formOf};
+})();
+</script>
